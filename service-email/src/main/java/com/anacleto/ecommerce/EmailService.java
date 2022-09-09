@@ -1,35 +1,38 @@
 package com.anacleto.ecommerce;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import java.util.Map;
 
-public class FraudDetectorService {
+public class EmailService {
 
     public static void main(String[] args) {
-        var fraudService = new FraudDetectorService();
+        var emailService = new EmailService();
 
-        try (var kafkaService = new KafkaService(
-                FraudDetectorService.class.getSimpleName(),
-                "ECOMMERCE_NEW_ORDER",
-                fraudService::parse)
+        try (var kafkaService = new KafkaService<>(
+                EmailService.class.getSimpleName(),
+                "ECOMMERCE_SEND_EMAIL",
+                emailService::parse,
+                String.class,
+                Map.of())
         ) {
-            kafkaService.run();
+            kafkaService. run();
         }
     }
 
     private void parse(ConsumerRecord<String, String> record) {
         System.out.println("--------------------------------------");
-        System.out.println("Processing order, checking for fraud");
+        System.out.println("Sending email");
         System.out.println(record.key());
         System.out.println(record.value());
         System.out.println(record.partition());
         System.out.println(record.offset());
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        System.out.println("Order processed");
+        System.out.println("Email sent!");
     }
 }
